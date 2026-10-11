@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>自定义事件倒计时</title>
+
+  <style>
+    body {
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      text-align: center;
+      padding-top: 50px;
+      background: #f5f5f5;
+      color: #333;
+      
+      /* 【新增】设置固定背景图 URL (替换为你想要的图片链接) */
+      background-image: url('https://assets.699pic.com/public/web/images/601/591/693.jpg!detail.v1');
+  
+      /* 【新增】背景适配属性 */
+      background-size: cover;       /* 铺满屏幕 */
+      background-position: center;  /* 居中 */
+      background-repeat: no-repeat; /* 不平铺 */
+      min-height: 100vh;            /* 最小高度占满视口 */
+    }
+
+    h2 {
+      margin-bottom: 24px;
+      word-break: break-all;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+  
+      /* 【修改点】把原来的 24px (或其他值) 改大 */
+      font-size: 36px;   
+  
+      /* 【可选】如果想更醒目，可以加粗或调整字间距 */
+      font-weight: bold;
+      letter-spacing: 6px;
+    }
+
+    .panel {
+      max-width: 760px;
+  
+      /* 【关键修改 1】增大上外边距，让面板整体下移，从而露出上方更多的背景/毛玻璃区域 */
+      /* 原来可能是 margin: 0 auto 30px; 或者没写具体值 */
+      margin: 60px auto 30px;
+  
+      /* 【关键修改 2】增大内部上方的留白，让内容离顶部边缘更远，视觉上更通透 */
+      padding: 40px 24px 24px;
+  
+      background: rgba(255, 255, 255, 0.85); 
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      /*background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);*/
+      
+      
+      /* 【新增】半透明白色背景，确保文字清晰 
+      background: rgba(255, 255, 255, 0.85); 
+  
+       【新增】毛玻璃模糊效果 (现代浏览器支持) 
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+  
+       【可选】增加边框和阴影提升层次感 
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);*/
+      
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    input[type="datetime-local"],
+    input[type="text"] {
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input[type="datetime-local"]:focus,
+    input[type="text"]:focus {
+      border-color: #2563eb;
+    }
+
+    input:disabled {
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .name-input {
+      width: 280px;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    button.secondary {
+      background: #64748b;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 15px;
+      color: #666;
+      min-height: 24px;
+      word-break: break-all;
+    }
+
+    .countdown {
+      margin-top: 40px;
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .item {
+      background: #334155;
+      color: #fff;
+      padding: 18px 22px;
+      border-radius: 10px;
+      min-width: 90px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: background 0.3s ease;
+    }
+
+    /* 未结束：绿色 */
+    .countdown.state-running .item {
+      background: #16a34a;
+    }
+
+    /* 已结束：红色 */
+    .countdown.state-ended .item {
+      background: #dc2626;
+    }
+
+    /* 未开始：默认深灰 */
+    .countdown.state-idle .item {
+      background: #334155;
+    }
+
+    .num {
+      font-size: 40px;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .label {
+      font-size: 14px;
+      margin-top: 8px;
+      opacity: 0.85;
+    }
+
+  /* ===========================
+     移动端适配
+     =========================== */
+  @media screen and (max-width: 768px) {
+    body {
+      padding: 20px 12px 40px;
+    }
+
+    h2 {
+      font-size: clamp(24px, 7vw, 36px);
+      margin-bottom: 16px;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 100%;
+      margin: 16px auto 20px;
+      padding: 16px;
+    }
+
+    .row {
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .row label {
+      flex: 0 0 100%;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="datetime-local"] {
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      font-size: 16px;
+    }
+
+    .name-input {
+      width: 100%;
+    }
+
+    button {
+      min-height: 44px;
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+
+    .countdown {
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .item {
+      min-width: 72px;
+      padding: 14px 10px;
+    }
+
+    .num {
+      font-size: 28px;
+    }
+
+    .label {
+      font-size: 12px;
+      margin-top: 6px;
+    }
+  }
+  </style>
+</head>
+<body>
+
+  <h2 id="eventTitle">未命名倒计时</h2>
+
+  <div class="panel">
+    <div class="row">
+      <label for="eventName">事件名称：</label>
+      <input
+        type="text"
+        id="eventName"
+        class="name-input"
+        maxlength="50"
+        placeholder="请输入事件名称"
+      />
+    </div>
+
+    <div class="row">
+      <label for="targetTime">目标时间：</label>
+      <input type="datetime-local" id="targetTime" />
+    </div>
+
+    <div class="row">
+      <button id="startBtn">开始倒计时</button>
+      <button id="resetBtn" class="secondary">重置</button>
+    </div>
+
+    <div class="row">
+      <button id="plus1m" class="secondary">+1分钟</button>
+      <button id="plus1h" class="secondary">+1小时</button>
+      <button id="plus1d" class="secondary">+1天</button>
+    </div>
+
+    <div class="status" id="status">
+      请输入事件名称并选择目标时间
+    </div>
+  </div>
+
+  <div class="countdown state-idle" id="countdown">
+    <div class="item">
+      <div class="num" id="days">00</div>
+      <div class="label">天</div>
+    </div>
+
+    <div class="item">
+      <div class="num" id="hours">00</div>
+      <div class="label">时</div>
+    </div>
+
+    <div class="item">
+      <div class="num" id="minutes">00</div>
+      <div class="label">分</div>
+    </div>
+
+    <div class="item">
+      <div class="num" id="seconds">00</div>
+      <div class="label">秒</div>
+    </div>
+  </div>
+
+  <script>
+    const eventNameInput = document.getElementById("eventName");
+    //const saveNameBtn = document.getElementById("saveNameBtn");
+    const eventTitle = document.getElementById("eventTitle");
+
+    const targetInput = document.getElementById("targetTime");
+    const startBtn = document.getElementById("startBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const statusEl = document.getElementById("status");
+    const countdownEl = document.getElementById("countdown");
+
+    const daysEl = document.getElementById("days");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+
+    const plus1mBtn = document.getElementById("plus1m");
+    const plus1hBtn = document.getElementById("plus1h");
+    const plus1dBtn = document.getElementById("plus1d");
+
+    let timer = null;
+    let endTime = null;
+    let started = false;
+
+    const STORAGE_KEY = "customCountdownStateV2";
+
+    function getState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    const savedState = getState();
+
+    let currentEventName = savedState.name || "未命名倒计时";
+
+    function setState(patch = {}) {
+      const state = getState();
+
+      const nextState = {
+        ...state,
+        name: currentEventName,
+        targetValue: targetInput.value,
+        endTime: endTime,
+        started: started,
+        ...patch,
+        updatedAt: Date.now()
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+    }
+
+    function pad(num) {
+      return String(num).padStart(2, "0");
+    }
+
+    // 将 Date 对象转换成 datetime-local 需要的格式：YYYY-MM-DDTHH:mm
+    function toLocalInputValue(date) {
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hours = pad(date.getHours());
+      const minutes = pad(date.getMinutes());
+
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    // 解析 datetime-local 的本地时间，避免时区歧义
+    function parseLocalDateTime(value) {
+      if (!value) return NaN;
+
+      const [datePart, timePart = "00:00"] = value.split("T");
+
+      const [year, month, day] = datePart.split("-").map(Number);
+      const [hour, minute] = timePart.split(":").map(Number);
+
+      if ([year, month, day, hour, minute].some(item => Number.isNaN(item))) {
+        return NaN;
+      }
+
+      return new Date(year, month - 1, day, hour, minute, 0, 0).getTime();
+    }
+
+    function getTimeParts(ms) {
+      const totalSeconds = Math.floor(Math.max(ms, 0) / 1000);
+
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      return {
+        days,
+        hours,
+        minutes,
+        seconds
+      };
+    }
+
+    function formatParts(parts) {
+      return `${parts.days}天 ${parts.hours}小时 ${parts.minutes}分 ${parts.seconds}秒`;
+    }
+
+    function setDefaultTarget(forceDefault = false) {
+      const now = new Date();
+      targetInput.min = toLocalInputValue(now);
+
+      const state = getState();
+      const savedValue = forceDefault ? "" : state.targetValue;
+      const parsed = parseLocalDateTime(savedValue);
+
+      if (savedValue && !Number.isNaN(parsed) && parsed > Date.now()) {
+        targetInput.value = savedValue;
+      } else {
+        const defaultTarget = new Date(Date.now() + 60 * 60 * 1000);
+        targetInput.value = toLocalInputValue(defaultTarget);
+      }
+    }
+
+    function setDigits(parts) {
+      daysEl.textContent = pad(parts.days);
+      hoursEl.textContent = pad(parts.hours);
+      minutesEl.textContent = pad(parts.minutes);
+      secondsEl.textContent = pad(parts.seconds);
+    }
+
+    function resetDigits() {
+      setDigits({
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+      });
+    }
+
+    function clearTimer() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    function setContainerState(state) {
+      countdownEl.classList.remove("state-idle", "state-running", "state-ended");
+      countdownEl.classList.add(`state-${state}`);
+    }
+
+    function setControlsDisabled(disabled) {
+      startBtn.disabled = disabled;
+      targetInput.disabled = disabled;
+      plus1mBtn.disabled = disabled;
+      plus1hBtn.disabled = disabled;
+      plus1dBtn.disabled = disabled;
+    }
+
+    function applyEventName(name) {
+      currentEventName = name;
+      eventTitle.textContent = name;
+    }
+
+    function saveEventName() {
+      const name = eventNameInput.value.trim();
+
+      if (!name) {
+        alert("事件名称不能为空");
+        eventNameInput.value = currentEventName;
+        return false;
+      }
+
+      applyEventName(name);
+      setState({ name });
+
+      if (started) {
+        updateCountdown();
+      } else {
+        statusEl.textContent = `${currentEventName} 已准备就绪`;
+      }
+
+      return true;
+    }
+
+    function updateCountdown() {
+      if (!started || endTime === null) {
+        setContainerState("idle");
+        resetDigits();
+        statusEl.textContent = `${currentEventName} 已准备就绪`;
+        return;
+      }
+
+      const now = Date.now();
+      const diff = endTime - now;
+
+      if (diff > 0) {
+        // 还没结束：绿色，正常倒计时
+        const parts = getTimeParts(diff);
+        setDigits(parts);
+        setContainerState("running");
+        statusEl.textContent = `${currentEventName} 倒计时进行中`;
+      } else {
+        // 已经结束：红色，继续往后计时
+        const parts = getTimeParts(-diff);
+        setDigits(parts);
+        setContainerState("ended");
+        statusEl.textContent = `${currentEventName} 已结束，已过去 ${formatParts(parts)}`;
+      }
+    }
+
+    function startTimer() {
+      clearTimer();
+      updateCountdown();
+      timer = setInterval(updateCountdown, 1000);
+    }
+
+    function startCountdown() {
+      if (started) {
+        return;
+      }
+
+      const name = eventNameInput.value.trim();
+
+      if (!name) {
+        alert("请先填写事件名称");
+        eventNameInput.focus();
+        return;
+      }
+
+      applyEventName(name);
+
+      const value = targetInput.value;
+
+      if (!value) {
+        alert("请选择目标时间");
+        return;
+      }
+
+      const targetTime = parseLocalDateTime(value);
+
+      if (Number.isNaN(targetTime)) {
+        alert("目标时间格式不正确");
+        return;
+      }
+
+      /*if (targetTime <= Date.now()) {
+        alert("目标时间必须晚于当前时间");
+        return;
+      }*/
+
+      started = true;
+      endTime = targetTime;
+
+      setControlsDisabled(true);
+
+      setState({
+        name,
+        targetValue: value,
+        endTime,
+        started: true
+      });
+
+      startTimer();
+    }
+
+    function resetCountdown() {
+      clearTimer();
+
+      started = false;
+      endTime = null;
+
+      // 【新增】将当前事件名称重置为默认值
+      currentEventName = "未命名倒计时"; 
+  
+      // 【新增】更新输入框的值
+      eventNameInput.value = currentEventName;
+  
+      // 【新增】更新页面标题
+      eventTitle.textContent = currentEventName;
+
+      setControlsDisabled(false);
+      setDefaultTarget(true);
+      resetDigits();
+      setContainerState("idle");
+
+      statusEl.textContent = `${currentEventName} 已重置，请设置目标时间`;
+
+      setState({
+        started: false,
+        endTime: null,
+        targetValue: targetInput.value
+      });
+    }
+
+    function addToTarget(ms) {
+      if (started) {
+        return;
+      }
+
+      let baseTimestamp = targetInput.value
+        ? parseLocalDateTime(targetInput.value)
+        : Date.now();
+
+      if (Number.isNaN(baseTimestamp) || baseTimestamp <= Date.now()) {
+        baseTimestamp = Date.now();
+      }
+
+      const nextDate = new Date(baseTimestamp + ms);
+      targetInput.value = toLocalInputValue(nextDate);
+
+      setState({
+        targetValue: targetInput.value
+      });
+    }
+
+    function init() {
+      eventNameInput.value = currentEventName;
+      applyEventName(currentEventName);
+
+      const state = getState();
+
+      // 如果上次刷新前已经开始倒计时，则恢复运行状态
+      if (
+        state.started &&
+        typeof state.endTime === "number" &&
+        !Number.isNaN(state.endTime)
+      ) {
+        started = true;
+        endTime = state.endTime;
+
+        targetInput.value = toLocalInputValue(new Date(endTime));
+        targetInput.min = toLocalInputValue(
+          new Date(Math.min(Date.now(), endTime))
+        );
+
+        setControlsDisabled(true);
+        startTimer();
+      } else {
+        started = false;
+        endTime = null;
+
+        setDefaultTarget(false);
+        setControlsDisabled(false);
+        resetDigits();
+        setContainerState("idle");
+
+        statusEl.textContent = `${currentEventName} 已准备就绪`;
+
+        setState({
+          started: false,
+          endTime: null,
+          targetValue: targetInput.value
+        });
+      }
+    }
+
+    // 绑定事件
+    /*saveNameBtn.addEventListener("click", saveEventName);
+
+    eventNameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        saveEventName();
+      }
+    });*/
+
+    startBtn.addEventListener("click", startCountdown);
+    resetBtn.addEventListener("click", resetCountdown);
+
+    plus1mBtn.addEventListener("click", () => {
+      addToTarget(60 * 1000);
+    });
+
+    plus1hBtn.addEventListener("click", () => {
+      addToTarget(60 * 60 * 1000);
+    });
+
+    plus1dBtn.addEventListener("click", () => {
+      addToTarget(24 * 60 * 60 * 1000);
+    });
+
+    targetInput.addEventListener("input", () => {
+      if (!started) {
+        setState({
+          targetValue: targetInput.value
+        });
+      }
+    });
+
+    targetInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        startCountdown();
+      }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && started) {
+        updateCountdown();
+      }
+    });
+
+    init();
+  </script>
+
+</body>
+</html>
