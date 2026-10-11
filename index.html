@@ -38,38 +38,22 @@
 
     .panel {
       max-width: 760px;
-  
-      /* 【关键修改 1】增大上外边距，让面板整体下移，从而露出上方更多的背景/毛玻璃区域 */
-      /* 原来可能是 margin: 0 auto 30px; 或者没写具体值 */
+
+      /* 面板整体下移，露出更多背景 */
       margin: 60px auto 30px;
-  
-      /* 【关键修改 2】增大内部上方的留白，让内容离顶部边缘更远，视觉上更通透 */
+
+      /* 内部上方留白更大，视觉更通透 */
       padding: 40px 24px 24px;
-  
-      background: rgba(255, 255, 255, 0.85); 
+
+      /* 面板原有磨砂玻璃背景 */
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
+
       border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-      /*background: #fff;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);*/
-      
-      
-      /* 【新增】半透明白色背景，确保文字清晰 
-      background: rgba(255, 255, 255, 0.85); 
-  
-       【新增】毛玻璃模糊效果 (现代浏览器支持) 
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-  
-       【可选】增加边框和阴影提升层次感 
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);*/
-      
+    }
 
     .row {
       display: flex;
@@ -110,30 +94,136 @@
       width: 280px;
     }
 
+    /* =========================================
+      按钮：与倒计时 .item 完全同款磨砂玻璃
+      包括鼠标悬浮效果也一致
+    ========================================= */
+
     button {
+      appearance: none;
+      -webkit-appearance: none;
+
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      /* 与倒计时 .item 同款尺寸和圆角 */
       padding: 10px 16px;
+      min-width: auto;
+      border-radius: 10px;
+
+      font-family: inherit;
       font-size: 15px;
-      border: none;
-      border-radius: 8px;
-      background: #2563eb;
+      line-height: 1;
       color: #fff;
+
+      /* 原主按钮颜色 #2563eb，同色半透明用于磨砂 */
+      background: rgba(37, 99, 235);
+
+      border: 1px solid rgba(255, 255, 255, 0.22);
+
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+
       cursor: pointer;
-      transition: 0.2s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+
+      opacity: 1;
+
+      transition:
+        transform 0.2s ease,
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        opacity 0.2s ease;
     }
 
-    button:hover {
-      opacity: 0.9;
+    /* 玻璃表面高光，与倒计时 .item 一致 */
+    button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(255, 255, 255, 0.08) 35%,
+        rgba(255, 255, 255, 0) 60%
+      );
     }
 
-    button:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
-      opacity: 0.7;
+    /* 鼠标悬浮：与 .item:hover 一致，上浮并轻微变实 */
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      background: rgba(37, 99, 235);
+      opacity: 1;
     }
+
+    /* 按下：与 .item:active 一致，轻微缩放 */
+    button:active:not(:disabled) {
+      transform: scale(0.98);
+      background: rgba(37, 99, 235);
+      opacity: 1;
+    }
+
+    /* 键盘聚焦提示，不影响玻璃效果 */
+    button:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.45);
+      outline-offset: 2px;
+    }
+
+    /*=========================================
+      secondary 按钮
+      原颜色 #64748b，同色半透明磨砂
+    ========================================= */
 
     button.secondary {
-      background: #64748b;
+      background: rgba(100, 116, 139);
     }
+
+    button.secondary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      background: rgba(100, 116, 139);
+      opacity: 1;
+    }
+
+    button.secondary:active:not(:disabled) {
+      transform: scale(0.98);
+      background: rgba(100, 116, 139);
+      opacity: 1;
+    }
+
+    /* =========================================
+      禁用按钮
+      原颜色 #94a3b8，同色半透明磨砂
+    ========================================= */
+
+    button:disabled {
+      background: rgba(148, 163, 184);
+      color: rgba(255, 255, 255, 0.82);
+
+      cursor: not-allowed;
+      transform: none;
+      opacity: 0.78;
+    }
+
+    /*button:disabled:hover,
+    button:disabled:active {
+      transform: none;
+      background: rgba(148, 163, 184);
+      opacity: 0.78;
+    }*/
 
     .status {
       margin-top: 10px;
@@ -151,29 +241,128 @@
       gap: 14px;
     }
 
+    /* =========================================
+      兼容不支持 backdrop-filter 的浏览器
+    ========================================= */
+
+    @supports not (
+      (backdrop-filter: blur(14px)) or
+      (-webkit-backdrop-filter: blur(14px))
+    ) {
+      button {
+        background: rgba(37, 99, 235, 0.86);
+      }
+
+      button:hover:not(:disabled),
+      button:active:not(:disabled) {
+        background: rgba(37, 99, 235, 0.92);
+      }
+
+      button.secondary {
+        background: rgba(100, 116, 139, 0.86);
+      }
+
+      button.secondary:hover:not(:disabled),
+      button.secondary:active:not(:disabled) {
+        background: rgba(100, 116, 139, 0.92);
+      }
+
+      button:disabled {
+        background: rgba(148, 163, 184, 0.72);
+      }
+
+      button:disabled:hover,
+      button:disabled:active {
+        background: rgba(148, 163, 184, 0.72);
+      }
+    }
+
+    /* 倒计时数字块：磨砂玻璃效果 */
     .item {
-      background: #334155;
+      position: relative;
+      overflow: hidden;
+
       color: #fff;
       padding: 18px 22px;
-      border-radius: 10px;
+      border-radius: 14px;
       min-width: 90px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      transition: background 0.3s ease;
+
+      background: rgba(51, 65, 85, 0.55); /* 默认深灰玻璃 */
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+
+      transition:
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.2s ease;
     }
 
-    /* 未结束：绿色 */
-    .countdown.state-running .item {
-      background: #16a34a;
+    /* 顶部轻微高光，更像玻璃 */
+    .item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(255, 255, 255, 0.08) 35%,
+        rgba(255, 255, 255, 0) 60%
+      );
     }
 
-    /* 已结束：红色 */
-    .countdown.state-ended .item {
-      background: #dc2626;
-    }
-
-    /* 未开始：默认深灰 */
+    /* 未开始：默认深灰玻璃 */
     .countdown.state-idle .item {
-      background: #334155;
+      background: rgba(51, 65, 85, 0.58);
+      border-color: rgba(255, 255, 255, 0.20);
+    }
+
+    /* 未结束 / 进行中：绿色玻璃 */
+    .countdown.state-running .item {
+      background: rgba(22, 163, 74, 0.58);
+      border-color: rgba(134, 239, 172, 0.35);
+      box-shadow:
+        0 8px 24px rgba(22, 163, 74, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+
+    /* 已结束：红色玻璃 */
+    .countdown.state-ended .item {
+      background: rgba(220, 38, 38, 0.58);
+      border-color: rgba(252, 165, 165, 0.35);
+      box-shadow:
+        0 8px 24px rgba(220, 38, 38, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+
+    /* 鼠标悬浮效果，可选 */
+    .item:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .countdown.state-running .item:hover {
+      background: rgba(22, 163, 74, 0.68);
+    }
+
+    .countdown.state-ended .item:hover {
+      background: rgba(220, 38, 38, 0.68);
+    }
+
+    .countdown.state-idle .item:hover {
+      background: rgba(51, 65, 85, 0.68);
+    }
+
+    /* 点击效果，可选 */
+    .item:active {
+      transform: scale(0.98);
     }
 
     .num {
@@ -311,6 +500,7 @@
     font-size: 11px;
   }
     }
+    
   </style>
 </head>
 <body>
