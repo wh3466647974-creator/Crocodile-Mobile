@@ -187,75 +187,130 @@
       margin-top: 8px;
       opacity: 0.85;
     }
+    /* ===========================
+   移动端适配
+   =========================== */
+    *,
+    *::before,
+    *::after {
+    box-sizing: border-box;
+    }
 
-  /* ===========================
-     移动端适配
-     =========================== */
-  @media screen and (max-width: 768px) {
+    html,
     body {
-      padding: 20px 12px 40px;
+      overflow-x: hidden;
     }
 
-    h2 {
-      font-size: clamp(24px, 7vw, 36px);
-      margin-bottom: 16px;
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding-top: 24px;
     }
 
-    .panel {
-      width: 100%;
-      max-width: 100%;
-      margin: 16px auto 20px;
-      padding: 16px;
-    }
-
-    .row {
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .row label {
-      flex: 0 0 100%;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    input[type="text"],
-    input[type="datetime-local"] {
-      width: 100%;
-      min-width: 0;
-      padding: 12px;
-      font-size: 16px;
-    }
-
-    .name-input {
-      width: 100%;
-    }
-
-    button {
-      min-height: 44px;
-      padding: 12px 14px;
-      font-size: 14px;
-    }
-
-    .countdown {
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .item {
-      min-width: 72px;
-      padding: 14px 10px;
-    }
-
-    .num {
-      font-size: 28px;
-    }
-
-    .label {
-      font-size: 12px;
-      margin-top: 6px;
-    }
+    @media screen and (max-width: 768px) {
+  body {
+    padding: 20px 12px 40px;
   }
+
+  h2 {
+    font-size: clamp(24px, 7vw, 36px);
+    margin-bottom: 16px;
+    line-height: 1.25;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 100%;
+    margin: 16px auto 20px;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .row {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .row label {
+    flex: 0 0 100%;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  input[type="text"],
+  input[type="datetime-local"] {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  .name-input {
+    width: 100%;
+  }
+
+  button {
+    flex: 1 1 auto;
+    min-height: 44px;
+    padding: 12px 14px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .status {
+    font-size: 14px;
+    min-height: 22px;
+  }
+
+  .countdown {
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .item {
+    min-width: 72px;
+    padding: 14px 10px;
+    border-radius: 10px;
+  }
+
+  .num {
+    font-size: 28px;
+  }
+
+  .label {
+    font-size: 12px;
+    margin-top: 6px;
+  }
+    }
+
+    @media screen and (max-width: 380px) {
+  h2 {
+    font-size: 22px;
+  }
+
+  .panel {
+    padding: 14px;
+  }
+
+  button {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .item {
+    min-width: 64px;
+    padding: 12px 8px;
+  }
+
+  .num {
+    font-size: 24px;
+  }
+
+  .label {
+    font-size: 11px;
+  }
+    }
   </style>
 </head>
 <body>
