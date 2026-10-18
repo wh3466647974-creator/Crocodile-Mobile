@@ -503,16 +503,58 @@
       }
     }
     
+    /* =========================================
+      移动端点击后避免按钮一直半透明 / 抬升
+    ========================================= */
     @media (hover: none), (pointer: coarse) {
+      button:not(:disabled),
+      button.secondary:not(:disabled),
+      .item,
+      .music-player button:not(:disabled),
+      .music-player select,
+      .music-panel-toggle:not(:disabled) {
+        opacity: 1 !important;
+      }
+
       button:hover:not(:disabled),
+      button:active:not(:disabled),
+      button:focus:not(:disabled),
+      button:focus-visible:not(:disabled),
       button.secondary:hover:not(:disabled),
+      button.secondary:active:not(:disabled),
+      button.secondary:focus:not(:disabled),
+      button.secondary:focus-visible:not(:disabled),
       .item:hover,
-      .countdown.state-running .item:hover,
-      .countdown.state-ended .item:hover,
-      .countdown.state-idle .item:hover,
-      .music-player button:hover,
-      .music-panel-toggle:hover {
+      .item:active,
+      .item:focus,
+      .music-player button:hover:not(:disabled),
+      .music-player button:active:not(:disabled),
+      .music-player button:focus:not(:disabled),
+      .music-player select:hover,
+      .music-player select:active,
+      .music-player select:focus,
+      .music-panel-toggle:hover:not(:disabled),
+      .music-panel-toggle:active:not(:disabled),
+      .music-panel-toggle:focus:not(:disabled) {
+        opacity: 1 !important;
         transform: none !important;
+      }
+
+      button:active:not(:disabled),
+      button.secondary:active:not(:disabled) {
+        transform: scale(0.96) !important;
+      }
+
+      .item:active {
+        transform: scale(0.97) !important;
+      }
+
+      .music-panel-toggle:active:not(:disabled) {
+        transform: scale(0.92) !important;
+      }
+
+      .music-player button:active:not(:disabled) {
+        transform: scale(0.94) !important;
       }
     }
   </style>
