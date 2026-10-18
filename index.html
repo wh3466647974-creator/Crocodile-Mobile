@@ -536,8 +536,17 @@
       .music-panel-toggle:hover:not(:disabled),
       .music-panel-toggle:active:not(:disabled),
       .music-panel-toggle:focus:not(:disabled) {
-        opacity: 1 !important;
         transform: none !important;
+      }
+
+      .music-player button:hover,
+      .music-player select:hover,
+      .music-player .music-file-label:hover {
+        background-color: rgba(255, 255, 255, 0.35)!important;
+      }
+
+      .music-panel-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.2)!important;
       }
 
       button:active:not(:disabled),
@@ -1204,8 +1213,8 @@
       touch-action: manipulation;
     }
 
-    .music-panel-toggle:hover {
-      background: rgba(255, 255, 255, 0.42)!important;
+    button.music-panel-toggle:hover {
+      background: rgba(255, 255, 255, 0.55);
       box-shadow:
         0 10px 26px rgba(0, 0, 0, 0.16),
         inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -1213,7 +1222,7 @@
 
     .music-panel-toggle:active {
       transform: scale(0.94);
-      background: rgba(255, 255, 255, 0.52);
+      background: rgba(255, 255, 255, 0.55);
     }
 
     /* 音乐面板默认位置往上挪一点，避免挡住开关按钮 */
