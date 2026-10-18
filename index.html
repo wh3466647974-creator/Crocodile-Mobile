@@ -46,7 +46,7 @@
       padding: 40px 24px 24px;
 
       /* 面板原有磨砂玻璃背景 */
-      background: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
 
@@ -964,6 +964,488 @@
     });
 
     init();
+  </script>
+
+  <!-- 音乐播放器 -->
+
+  <!-- 音乐面板开关按钮 -->
+  <button id="musicPanelToggleBtn" class="music-panel-toggle" type="button">
+    🎵
+  </button>
+
+  <!-- 音乐控制面板 -->
+  <div id="musicPlayer" class="music-player is-hidden">
+    <audio id="bgm" loop preload="metadata"></audio>
+
+    <div class="music-row music-row-top">
+      <select id="musicSelect" class="glass-btn music-select"></select>
+    </div>
+
+    <!-- <label for="musicFile" class="music-file-label">选择本地音乐</label> -->
+    <!-- <input id="musicFile" type="file" accept="audio/*" hidden /> -->
+
+    <div class="music-row music-row-bottom">
+      <button id="prevMusicBtn" type="button">⏮</button>
+      <button id="musicBack15Btn" type="button">⏪︎</button>
+      <button id="musicToggleBtn" type="button">▶</button>
+      <button id="musicForward15Btn" type="button">⏩︎</button>
+      <button id="nextMusicBtn" type="button">⏭</button>
+    </div> 
+    <!-- <input id="musicVolume" type="range" min="0" max="1" step="0.01" value="0.5" /> -->
+  </div>
+
+  <style>
+    .music-player {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 9999;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+
+      padding: 10px 12px;
+      border-radius: 24px;
+
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .music-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+
+    .music-row-top {
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .music-row-bottom {
+      padding-top: 2px;
+    }
+
+    /* 统一按钮、下拉框、文件选择按钮外观 */
+    .music-player button,
+    .music-player select,
+    .music-player .music-file-label {
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.35);
+      color: #222;
+      font: inherit;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .music-player button:hover,
+    .music-player select:hover,
+    .music-player .music-file-label:hover {
+      background-color: rgba(255, 255, 255, 0.55);
+    }
+
+    .music-player button:active,
+    .music-player select:active,
+    .music-player .music-file-label:active {
+      transform: scale(0.97);
+    }
+
+    .music-player button:focus-visible,
+    .music-player select:focus-visible,
+    .music-player .music-file-label:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.75);
+      outline-offset: 2px;
+    }
+
+    /* 重点：去掉 select 原生外观 */
+    .music-player select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: 34px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" fill="none" stroke="%23222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 12px 8px;
+      max-width: 150px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    /* 下拉选项样式，桌面端有效，手机端多数由系统控制 */
+    .music-player select option {
+      background: rgba(255, 255, 255, 0.95);
+      color: #222;
+      padding: 8px 12px;
+    }
+
+    /* 音量滑块 
+    .music-player input[type="range"] {
+      width: 90px;
+      height: 36px;
+      cursor: pointer;
+      accent-color: rgba(255, 255, 255, 0.75);
+    }
+
+    /* 音乐面板开关按钮 */
+    .music-panel-toggle {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 10000;
+
+      width: 48px;
+      height: 48px;
+      padding: 0;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+
+      color: #222;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
+
+      transition:
+        background 0.18s ease,
+        transform 0.12s ease,
+        box-shadow 0.18s ease;
+
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .music-panel-toggle:hover {
+      background: rgba(255, 255, 255, 0.42)!important;
+      box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .music-panel-toggle:active {
+      transform: scale(0.94);
+      background: rgba(255, 255, 255, 0.52);
+    }
+
+    /* 音乐面板默认位置往上挪一点，避免挡住开关按钮 */
+    .music-player {
+      bottom: 76px !important;
+    }
+
+    /* 隐藏状态 */
+    .music-player.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(12px) scale(0.98);
+    }
+
+    /* 给音乐面板加过渡动画 */
+    .music-player {
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s ease;
+    }
+
+    /* 手机端适配 */
+  @media (max-width: 520px) {
+    .music-player {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      border-radius: 24px;
+    }
+
+    .music-player button,
+    .music-player select,
+    .music-player .music-file-label {
+      height: 34px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .music-player select {
+      max-width: 130px;
+      padding-right: 30px;
+      background-position: right 10px center;
+    }
+
+    .music-player input[type="range"] {
+      width: 80px;
+    }
+
+    .music-panel-toggle {
+      right: 12px;
+      bottom: 12px;
+      width: 44px;
+      height: 44px;
+      font-size: 20px;
+    }
+
+    .music-player {
+      bottom: 68px !important;
+    }
+  }
+  </style>
+
+  <script>
+    const bgm = document.getElementById("bgm");
+    const musicSelect = document.getElementById("musicSelect");
+    const musicToggleBtn = document.getElementById("musicToggleBtn");
+    const prevMusicBtn = document.getElementById("prevMusicBtn");
+    const nextMusicBtn = document.getElementById("nextMusicBtn");
+    const musicVolume = document.getElementById("musicVolume");
+    const musicForward15Btn = document.getElementById("musicForward15Btn");
+    const musicBack15Btn = document.getElementById("musicBack15Btn");
+
+    // 在这里配置你的歌曲列表
+    const songs = [
+      {
+        name: "恋は切な",
+        src: "安瀬聖 - 恋は切なく.mp3"
+      },
+      {
+        name: "Canon in D",
+        src: "Johann Pachelbel, Chris Snelling - Canon in D.mp3"
+      },
+      {
+        name: "Floria",
+        src: "Tomohisa Sako - Floria.m4a"
+      }
+    ];
+
+    let currentSongIndex = 0;
+    let isPlaying = false;
+
+    // 初始化音量
+    if (bgm && musicVolume) {
+      bgm.volume = Number(musicVolume.value);
+    }
+
+    // 生成歌曲下拉框
+    function initMusicSelect() {
+      if (!musicSelect) return;
+
+      musicSelect.innerHTML = "";
+
+      songs.forEach((song, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = song.name;
+        musicSelect.appendChild(option);
+      });
+
+      musicSelect.value = currentSongIndex;
+    }
+
+    // 加载指定歌曲
+    function loadSong(index, autoplay = false) {
+      if (!bgm) return;
+
+      if (index < 0) {
+        index = songs.length - 1;
+      }
+
+      if (index >= songs.length) {
+        index = 0;
+      }
+
+      currentSongIndex = index;
+
+      const song = songs[currentSongIndex];
+
+      bgm.src = song.src;
+      bgm.currentTime = 0;
+      bgm.load();
+
+      if (musicSelect) {
+        musicSelect.value = currentSongIndex;
+      }
+
+      if (autoplay) {
+        playMusic();
+      } else {
+        updatePlayButton();
+      }
+    }
+
+    // 播放音乐
+    async function playMusic() {
+      if (!bgm) return;
+
+      try {
+        await bgm.play();
+        isPlaying = true;
+        updatePlayButton();
+      } catch (err) {
+        console.error("音乐播放失败：", err);
+        isPlaying = false;
+        updatePlayButton();
+      }
+    }
+
+    // 暂停音乐
+    function pauseMusic() {
+      if (!bgm) return;
+
+      bgm.pause();
+      isPlaying = false;
+      updatePlayButton();
+    }
+
+    // 更新播放按钮文字
+    function updatePlayButton() {
+      if (!musicToggleBtn) return;
+
+      musicToggleBtn.textContent = isPlaying ? "⏸" : "▶";
+    }
+
+    // 播放 / 暂停按钮
+    if (musicToggleBtn) {
+      musicToggleBtn.addEventListener("click", () => {
+        if (!bgm.src) {
+          loadSong(currentSongIndex, true);
+          return;
+        }
+
+        if (isPlaying) {
+          pauseMusic();
+        } else {
+          playMusic();
+        }
+      });
+    }
+
+    // 下拉框选择歌曲
+    if (musicSelect) {
+      musicSelect.addEventListener("change", () => {
+        const index = Number(musicSelect.value);
+        loadSong(index, isPlaying);
+      });
+    }
+
+    // 上一首
+    if (prevMusicBtn) {
+      prevMusicBtn.addEventListener("click", () => {
+        loadSong(currentSongIndex - 1, isPlaying);
+      });
+    }
+
+    // 下一首
+    if (nextMusicBtn) {
+      nextMusicBtn.addEventListener("click", () => {
+        loadSong(currentSongIndex + 1, isPlaying);
+      });
+    }
+
+    // 音量控制
+    if (musicVolume && bgm) {
+      musicVolume.addEventListener("input", () => {
+        bgm.volume = Number(musicVolume.value);
+      });
+    }
+
+    // 音乐前进 / 后退
+    function seekMusic(deltaSeconds) {
+      if (!bgm || !bgm.src) return;
+
+      const currentTime = bgm.currentTime || 0;
+      const duration = bgm.duration;
+
+      let newTime = currentTime + deltaSeconds;
+
+      if (newTime < 0) {
+        newTime = 0;
+      }
+
+      if (Number.isFinite(duration) && newTime > duration) {
+        newTime = duration;
+      }
+
+      bgm.currentTime = newTime;
+    }
+
+    // 前进15秒 = 快进15秒
+    if (musicForward15Btn) {
+      musicForward15Btn.addEventListener("click", () => {
+        seekMusic(15);
+      });
+    }
+
+    // 倒退15秒 = 后退15秒
+    if (musicBack15Btn) {
+      musicBack15Btn.addEventListener("click", () => {
+        seekMusic(-15);
+      });
+    }
+
+    // 歌曲播放结束后自动下一首
+    if (bgm) {
+      bgm.addEventListener("ended", () => {
+        loadSong(currentSongIndex + 1, isPlaying);
+      });
+    }
+
+    // 初始化
+    initMusicSelect();
+    loadSong(0, false);
+
+    (function () {
+      const musicPanelToggleBtn = document.getElementById("musicPanelToggleBtn");
+      const musicPlayer = document.getElementById("musicPlayer") || document.querySelector(".music-player");
+
+      if (!musicPanelToggleBtn || !musicPlayer) return;
+
+      function updatePanelState() {
+        const isHidden = musicPlayer.classList.contains("is-hidden");
+
+        musicPanelToggleBtn.textContent = isHidden ? "🎵" : "✕";
+        musicPanelToggleBtn.setAttribute("aria-expanded", String(!isHidden));
+        musicPlayer.setAttribute("aria-hidden", String(isHidden));
+      }
+
+      musicPanelToggleBtn.addEventListener("click", function () {
+        musicPlayer.classList.toggle("is-hidden");
+        updatePanelState();
+      });
+
+      updatePanelState();
+    })();
   </script>
 
 </body>
