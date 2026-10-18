@@ -985,9 +985,9 @@
     <!-- <input id="musicFile" type="file" accept="audio/*" hidden /> -->
 
     <div class="music-row music-row-bottom">
-      <button id="prevMusicBtn" type="button">⏮</button>
+      <button id="prevMusicBtn" type="button">⏮︎</button>
       <button id="musicBack15Btn" type="button">⏪︎</button>
-      <button id="musicToggleBtn" type="button">▶</button>
+      <button id="musicToggleBtn" type="button">▶︎</button>
       <button id="musicForward15Btn" type="button">⏩︎</button>
       <button id="nextMusicBtn" type="button">⏭︎</button>
     </div> 
@@ -1332,7 +1332,7 @@
     function updatePlayButton() {
       if (!musicToggleBtn) return;
 
-      musicToggleBtn.textContent = isPlaying ? "⏸" : "▶";
+      musicToggleBtn.textContent = isPlaying ? "⏸︎" : "▶︎";
     }
 
     // 播放 / 暂停按钮
